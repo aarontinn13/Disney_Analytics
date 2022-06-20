@@ -3,6 +3,7 @@ import pandas as pd
 from collections import OrderedDict
 from sklearn.metrics import accuracy_score
 from sklearn.linear_model import LogisticRegression
+from sklearn import linear_model
 import os
 
 # set options
@@ -63,44 +64,64 @@ def seasonality():
 
 def logistic_regression():
 
-    tr = open('C:\\Users\\atinn\\Downloads', "r")
+    tr = open('C:\\Users\\atinn\\Downloads', 'r')
     records = tr.readlines()
     tr.close()
 
     X = [[] for i in range(1460)]
     y = []
     for i in range(1, len(records)):
-        for j in range(len(records[i].strip().split(",")) - 1):
-            X[i - 1].append(int(records[i].strip().split(",")[j]))
-        y.append(int(records[i].strip().split(",")[36]))
+        for j in range(len(records[i].strip().split(',')) - 1):
+            X[i - 1].append(int(records[i].strip().split(',')[j]))
+        y.append(int(records[i].strip().split(',')[36]))
 
     lr = LogisticRegression()
     lr.fit(X, y)
 
-    te = open('C:\\Users\\atinn\\Downloads', "r")
+    te = open('C:\\Users\\atinn\\Downloads', 'r')
     records1 = te.readlines()
     te.close()
 
     XX = [[] for i in range(1459)]
     yy = []
     for i in range(1, len(records1)):
-        for j in range(len(records1[i].strip().split(","))):
-            XX[i - 1].append(int(records1[i].strip().split(",")[j]))
+        for j in range(len(records1[i].strip().split(','))):
+            XX[i - 1].append(int(records1[i].strip().split(',')[j]))
 
     yy = lr.predict(XX)
 
-    result = open("predictionresult.csv", "w")
-    print("Writing to File")
-    result.write("House No,Predicted Price" + "\n")
+    result = open('predictionresult.csv', 'w')
+    print('Writing to File')
+    result.write('House No,Predicted Price' + '\n')
     for i in range(len(yy)):
-        result.write(str(i + 1) + "," + str(yy[i]) + "\n")
+        result.write(str(i + 1) + ',' + str(yy[i]) + '\n')
     result.close()
 
     yyy = lr.predict(X)
     accuracy = accuracy_score(y, yyy) * 100
-    print("model accuracy")
+    print('model accuracy')
     print(accuracy)
 
+def multiple_regression():
+    
+    df = pd.read_csv('C:\\Users\\atinn\\Downloads\\data.csv')
+
+    totalArea = df[['TotalBsmtSF']+['GrLivArea']]
+    halfBath = df[['BsmtHalfBath']+['HalfBath']]/2
+    totalBath = df[['BsmtFullBath']+['FullBath']] + halfBath
+
+    X = df[totalArea, totalBath, ['BedroomAbvGr']] #input data
+
+    # print(X)
+
+    y = df['SalePrice'] #input data
+
+    regr = linear_model.LinearRegression()
+    regr.fit(X, y)
+
+    predict = regr.predict([[1500, 3, 4]])
+
+    print(predict)
+
 if __name__ == '__main__':
-    #quick_stats()
-    seasonality()
+    '''call functions individually'''
